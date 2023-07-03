@@ -1,0 +1,156 @@
+/* Page Styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #eee;
+  color: #111;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  }
+
+.panel-header {
+  height: 260px;
+  padding-top: 80px;
+  padding-bottom: 45px;
+  background: linear-gradient(to right, #0c2646 0%, #204065 60%, #2a5788 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-header .header .subtitle a {
+  color: #FFF;
+}
+
+.title {
+  color: #FFF;
+  font-weight: 600;
+}
+
+h2 {
+font-size: 2.5em;
+margin-bottom: 30px;
+}
+
+h4 {
+  font-size: 1.714em;
+  line-height: 1.45em;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 auto;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+/* Buttons */
+
+.btn {
+  font-size: 0.8571em;
+  border: none;
+  margin: 10px 1px;
+  cursor: pointer;
+  background-color: #888;
+  color: #FFFFFF;
+}
+
+.btn-primary {
+  background-color: #0059b9;
+  color: #FFF;
+}
+
+.btn-lg {
+  font-size: 1em;
+  border-radius: 0.25rem;
+  padding: 15px 48px;
+}
+
+.btn:disabled, .btn[disabled], .btn.disabled {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  pointer-events: none;
+  background-color: #0059b9;
+  border-color: #0059b9;
+}
+
+.btn:hover {
+    background-color: #979797;
+    color: #FFFFFF;
+    box-shadow: none;
+    border-color: #979797;
+}
+
+.btn-lg:hover {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  background-color: #0059b9;
+  border-color: #0059b9;
+}
+
+.btn.focus, .btn:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+/* Table */
+.table > thead > tr > th {
+  font-weight: 300;
+  border: 0;
+}
+
+/* Footer */
+.footer {
+  padding: 24px 0;
+}
+
+.footer nav {
+  display: inline-block;
+  padding-left: 7px;
+}
+.footer ul li {
+  display: inline-block;
+}
+
+.footer .copyright {
+  float: right;
+  padding-right: 15px;
+}
+
+
+
+/* 404 */
+.page-wrap {
+  min-height: 70vh;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.overlay-message {
+  margin-top: 10px;
+  font-size: larger;
+  color: #FFF;
+}

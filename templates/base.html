@@ -1,0 +1,42 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>
+        {{ app_title }}
+    </title>
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <!-- CSS Files -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>     
+    <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet" />
+    <!-- J Query -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  </head>
+
+  <body>
+    <div class="wrapper ">
+    <!-- Jinja Content -->
+    {% include contents %}
+    {% block content %}{% endblock %}
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container-fluid">
+        <nav>
+          <ul>
+            <li>API Testing/Development</li>
+          </ul>
+        </nav>
+        <div class="copyright">2023 - Coded by
+          <a href="https://github.com/benbenbenbenbenbenbenbenbenben">Ben</a>.
+        </div>
+      </div>
+    </footer>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
