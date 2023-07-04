@@ -2,6 +2,7 @@
 
 This web application allows you to provision Meraki clients using data from a CSV file.
 
+![Provision Preview](https://github.com/benbenbenbenbenbenbenbenbenben/meraki-provision-clients/blob/main/provision.gif?raw=true)
 ## Introduction
 
 The Meraki Client Provisioning Web App simplifies the process of provisioning Meraki clients by automating the data import from a CSV file. It provides a user-friendly interface to map the CSV columns to the required Meraki client attributes and performs the provisioning with the help of the Meraki Dashboard API.
