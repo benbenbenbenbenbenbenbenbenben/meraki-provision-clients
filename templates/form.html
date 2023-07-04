@@ -1,105 +1,157 @@
 <div class="panel-header">
-    <div class="header text-center">
-        <h2 class="title">Device Provision</h2>
-        <p class="subtitle">
-            <a href="https://github.com/benbenbenbenbenbenbenbenbenben/switchports-drag-drop.git">Preload devices by mac</a>.    
-        </p>
-        <h4 class="title"></h2>
-    </div>
+  <div class="header text-center">
+    <h2 class="title">Meraki Client Provisioning Web App</h2>
+    <p class="subtitle">
+      Preload devices by mac -
+      <a
+        href="https://github.com/benbenbenbenbenbenbenbenbenben/meraki-provision-clients"
+        >github</a
+      >.
+    </p>
+  </div>
 </div>
 <div class="content m-5">
   <form id="uploadForm">
     <div class="row">
-        <div class="col-md-12 mb-5">
-                <!-- Organisation -->
-                <div class="row">
-                  <h5>Organisation <span id="orgSpin" class="spinner spinner-border spinner-border-sm d-none"></span></h5>
-                  <div class="form-group">
-                    <select id="inputOrg" class="form-control" name="inputOrg">
-                      <option value="">Choose an Organisation</option>
-                      {% for org in orgs %}
-                        <option value="{{org['id']}}">
-                        {{org['name']}}
-                        </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                <hr />
-                <!-- Network -->
-                <div class="row">
-                  <h5>Network</h5>
-                  <div class="form-group">
-                    <select id="inputNetwork" class="form-control" name="inputNetwork" disabled></select>
-                  </div>
-                </div>
-                <hr />
-                <!-- Policy -->
-                <div class="form-row">
-                  <h5>Policy <span id="policySpin" class="spinner spinner-border spinner-border-sm d-none"></span></h5>
-                  <div class="form-group">
-                    <select id="inputPolicy" class="form-control" name="inputPolicy" disabled>
-                      <option value="">Choose a policy</option>
-                      <option value="Normal">Normal</option>
-                      <option value="Allowed">Allowed</option>
-                      <option value="Blocked">Blocked</option>
-                      <option value="Group policy">Group policy</option>
-                      <option value="Per connection">Per connection</option>
-                    </select>
-                  </div>
-                </div>
-                <hr />
-
-                <!-- Group Policy -->
-                <h5>Group Policy</h5>
-                <div class="row">
-                  <div class="form-group">
-                    <select id="inputGroupPolicy" class="form-control" name="inputGroupPolicy" disabled></select>
-                  </div>
-                </div>
-                <hr />
-                <!-- SSIDs -->
-                <h5>SSIDs</h5>
-                <div class="row" id="ssidHolder">
-                  <!-- <div class="form-group" id="ssidHolder"></div> -->
-                </div>
-                <hr />
-                <!-- Devices -->
-                <h5>Devices</h5> 
-                <div class="row">
-                  <label for="csvFileInput" class="form-label">Choose CSV file. Headers must be 'name' and 'mac'.</label>
-                  <input class="form-control" type="file" id="csvFileInput" name="csvFileInput" required>
-                  <div id="devicesError" class="invalid-feedback"></div>
-                  <button id="loadButton" class="btn btn-secondary btn-lg">Load</button>
-                </div>
-                <button id="tableHideButton" class="btn btn-primary" type="button" data-toggle="collapse" data-target="#tableContainer" aria-expanded="false" aria-controls="tableContainer" hidden>
-                  Hide Table
-                </button>
-                <div id="tableContainer" class="row collapse">
-                    <table id="myTable" class="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Device Name</th>
-                          <th>Mac Address</th>
-                        </tr>
-                      </thead>
-                      <tbody id="tableBody"></tbody>
-                    </table>
-                    <nav id="paginationContainer">
-                      <ul id="pagination" class="pagination justify-content-center"></ul>
-                    </nav>
-                  </div> 
-                <hr />
-                <!-- Submit -->
-                <div class="row">
-                  <button id="provisionButton" type="submit" class="btn btn-primary btn-lg" disabled>Provision</button>
-                </div>
-                <!-- Alrts -->
-                <div class="row">
-                  <div id="alert-container"></div>
-                </div>
+      <div class="col-md-12 mb-5">
+        <!-- Organisation -->
+        <div class="row">
+          <h5>
+            Organisation
+            <span
+              id="orgSpin"
+              class="spinner spinner-border spinner-border-sm d-none"
+            ></span>
+          </h5>
+          <div class="form-group">
+            <select id="inputOrg" class="form-control" name="inputOrg">
+              <option value="">Choose an Organisation</option>
+              {% for org in orgs %}
+              <option value="{{org['id']}}">{{org['name']}}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
+        <hr />
+        <!-- Network -->
+        <div class="row">
+          <h5>Network</h5>
+          <div class="form-group">
+            <select
+              id="inputNetwork"
+              class="form-control"
+              name="inputNetwork"
+              disabled
+            ></select>
+          </div>
+        </div>
+        <hr />
+        <!-- Policy -->
+        <div class="form-row">
+          <h5>
+            Policy
+            <span
+              id="policySpin"
+              class="spinner spinner-border spinner-border-sm d-none"
+            ></span>
+          </h5>
+          <div class="form-group">
+            <select
+              id="inputPolicy"
+              class="form-control"
+              name="inputPolicy"
+              disabled
+            >
+              <option value="">Choose a policy</option>
+              <option value="Normal">Normal</option>
+              <option value="Allowed">Allowed</option>
+              <option value="Blocked">Blocked</option>
+              <option value="Group policy">Group policy</option>
+              <option value="Per connection">Per connection</option>
+            </select>
+          </div>
+        </div>
+        <hr />
+
+        <!-- Group Policy -->
+        <h5>Group Policy</h5>
+        <div class="row">
+          <div class="form-group">
+            <select
+              id="inputGroupPolicy"
+              class="form-control"
+              name="inputGroupPolicy"
+              disabled
+            ></select>
+          </div>
+        </div>
+        <hr />
+        <!-- SSIDs -->
+        <h5>SSIDs</h5>
+        <div class="row" id="ssidHolder">
+          <!-- <div class="form-group" id="ssidHolder"></div> -->
+        </div>
+        <hr />
+        <!-- Devices -->
+        <h5>Devices</h5>
+        <div class="row">
+          <label for="csvFileInput" class="form-label"
+            >Choose CSV file. Headers must be 'name' and 'mac'.</label
+          >
+          <input
+            class="form-control"
+            type="file"
+            id="csvFileInput"
+            name="csvFileInput"
+            required
+          />
+          <div id="devicesError" class="invalid-feedback"></div>
+          <button id="loadButton" class="btn btn-secondary btn-lg">Load</button>
+        </div>
+        <button
+          id="tableHideButton"
+          class="btn btn-primary"
+          type="button"
+          data-toggle="collapse"
+          data-target="#tableContainer"
+          aria-expanded="false"
+          aria-controls="tableContainer"
+          hidden
+        >
+          Hide Table
+        </button>
+        <div id="tableContainer" class="row collapse">
+          <table id="myTable" class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Device Name</th>
+                <th>Mac Address</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <nav id="paginationContainer">
+            <ul id="pagination" class="pagination justify-content-center"></ul>
+          </nav>
+        </div>
+        <hr />
+        <!-- Submit -->
+        <div class="row">
+          <button
+            id="provisionButton"
+            type="submit"
+            class="btn btn-primary btn-lg"
+            disabled
+          >
+            Provision
+          </button>
+        </div>
+        <!-- Alrts -->
+        <div class="row">
+          <div id="alert-container"></div>
+        </div>
+      </div>
     </div>
   </form>
 </div>
@@ -107,16 +159,13 @@
 <div id="overlay" class="overlay">
   <div class="overlay-content">
     <div class="spinner-border text-primary" role="status"></div>
-    <p class="overlay-message">Loading... This may take some time.</p>
+    <p class="overlay-message">Provisioning... This may take some time.</p>
   </div>
 </div>
-
-
 
 <!-- Import Scripts -->
 <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 <script src="{{ url_for('static', filename='table.js') }}"></script>
-
 
 <script>
   // Elements
@@ -126,47 +175,46 @@
   const inputGroupPolicy = document.getElementById("inputGroupPolicy");
   const ssidHolder = document.getElementById("ssidHolder");
   const tableHideButton = document.getElementById("tableHideButton");
-  const overlay = document.getElementById('overlay');
+  const overlay = document.getElementById("overlay");
 
   // Table Hide/Show
-  $('#tableContainer').on('hidden.bs.collapse', function () {
-    tableHideButton.innerHTML = "Show Table"
-  })
-  $('#tableContainer').on('show.bs.collapse', function () {
-    tableHideButton.innerHTML = "Hide Table"
-  })
+  $("#tableContainer").on("hidden.bs.collapse", function () {
+    tableHideButton.innerHTML = "Show Table";
+  });
+  $("#tableContainer").on("show.bs.collapse", function () {
+    tableHideButton.innerHTML = "Hide Table";
+  });
 
   // Handle Org Select Change
   inputOrg.addEventListener("change", (event) => {
+    const spinner = document.getElementById("orgSpin");
+    spinner.classList.remove("d-none");
 
-    const spinner = document.getElementById("orgSpin")
-    spinner.classList.remove('d-none');
-  
     //Reset Changes
-    ssidHolder.innerHTML = ''
+    ssidHolder.innerHTML = "";
     inputPolicy.disabled = true;
     inputGroupPolicy.disabled = true;
-  
+
     // Get Network ID
     const orgId = document.getElementById("inputOrg");
     // Make the API call
-    fetch('/networks?orgId=' + orgId.value)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-        
+    fetch("/networks?orgId=" + orgId.value)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+
         // Remove Options
         inputNetwork.options.length = 0;
 
         // Create Select Message Option
-        let newOption = document.createElement('option');
-          newOption.value = "";
-          newOption.textContent = "Choose a network";
-          inputNetwork.appendChild(newOption);
-        
-          // Create Options
-        data.forEach(option => {
-          let newOption = document.createElement('option');
+        let newOption = document.createElement("option");
+        newOption.value = "";
+        newOption.textContent = "Choose a network";
+        inputNetwork.appendChild(newOption);
+
+        // Create Options
+        data.forEach((option) => {
+          let newOption = document.createElement("option");
           newOption.value = option.id;
           newOption.textContent = option.name;
           inputNetwork.appendChild(newOption);
@@ -174,250 +222,243 @@
 
         inputNetwork.disabled = false;
         // Hide the spinner
-        spinner.classList.add('d-none');
+        spinner.classList.add("d-none");
       })
-      .catch(error => {
-        console.error('Error:', error);
+      .catch((error) => {
+        console.error("Error:", error);
         // Hide the spinner
-        spinner.classList.add('d-none');
+        spinner.classList.add("d-none");
       });
-    });
-    
-  
+  });
+
   // Handle Network Select Change
   inputNetwork.addEventListener("change", (event) => {
-
     //Reset Changes
-    ssidHolder.innerHTML = ''
+    ssidHolder.innerHTML = "";
     inputGroupPolicy.disabled = true;
     inputPolicy.disabled = false;
-    inputPolicy.value = '';
-  
+    inputPolicy.value = "";
   });
-  
+
   // Handle Policy Select Change
   inputPolicy.addEventListener("change", (event) => {
-    const triggers = ['Group policy', 'Per connection']
-    var changedPolicy = event.target.value
+    const triggers = ["Group policy", "Per connection"];
+    var changedPolicy = event.target.value;
 
-    const spinner = document.getElementById("policySpin")
-    spinner.classList.remove('d-none');
-  
     //Reset Changes
-    ssidHolder.innerHTML = ''
+    ssidHolder.innerHTML = "";
     inputGroupPolicy.disabled = true;
-  
+
     // Get Network ID
     const networkId = document.getElementById("inputNetwork");
-  
+
     if (triggers.includes(changedPolicy)) {
-    // Make the API call
-    fetch('/policy?value=' + changedPolicy + '&networkId=' + networkId.value)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-  
-        // Remove Options
-        inputGroupPolicy.options.length = 0;
-  
-        // Iterate over the data and create options
-        if (changedPolicy == 'Group policy') {
-          // Policies
-          data['policies'].forEach(option => {
-            const newOption = document.createElement('option');
-            newOption.value = option.groupPolicyId;
-            newOption.textContent = option.name;
-            inputGroupPolicy.appendChild(newOption);
-          });
-          inputGroupPolicy.disabled = false;
-        }
-  
-        //SSIDs
-        if (changedPolicy == 'Per connection') {
-  
-          data['ssids'].forEach(ssid => {
-  
-          // Skip the current iteration if "Unconfigured" is found in the string
-          if(ssid.name.includes("Unconfigured")) {return;}
-  
-          const selectBox = document.createElement('div');
-          selectBox.classList.add('col-md-3', 'mb-3');
-  
-          const label = document.createElement('label');
-          label.textContent = ssid.name;
-          selectBox.appendChild(label);
-    
-  
-          var newSelectBox = document.createElement('select');
-          newSelectBox.classList.add("form-control")
-          newSelectBox.id = 'input'+ssid.name;
-          newSelectBox.name = 'ssid-'+ssid.number;
-  
-          const defaultPolicies = ['Normal', 'Allowed', 'Blocked']
-          defaultPolicies.forEach(option => {
-            const newOption = document.createElement('option');
-            newOption.value = option;
-            newOption.textContent = option;
-            newSelectBox.appendChild(newOption);
-          });
-  
-          data['policies'].forEach(option => {
-            const newOption = document.createElement('option');
-            newOption.value = option.groupPolicyId;
-            newOption.textContent = option.name;
-            newSelectBox.appendChild(newOption);
-          });
-  
-          // Append the SSID name and select elements to the row
-          selectBox.appendChild(newSelectBox);
-  
-          // Append the row to the container
-          ssidHolder.appendChild(selectBox);
-  
+      const spinner = document.getElementById("policySpin");
+      spinner.classList.remove("d-none");
+
+      // Make the API call
+      fetch("/policy?value=" + changedPolicy + "&networkId=" + networkId.value)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+
+          // Remove Options
+          inputGroupPolicy.options.length = 0;
+
+          // Iterate over the data and create options
+          if (changedPolicy == "Group policy") {
+            // Policies
+            data["policies"].forEach((option) => {
+              const newOption = document.createElement("option");
+              newOption.value = option.groupPolicyId;
+              newOption.textContent = option.name;
+              inputGroupPolicy.appendChild(newOption);
+            });
+            inputGroupPolicy.disabled = false;
+          }
+
+          //SSIDs
+          if (changedPolicy == "Per connection") {
+            data["ssids"].forEach((ssid) => {
+              // Skip the current iteration if "Unconfigured" is found in the string
+              if (ssid.name.includes("Unconfigured")) {
+                return;
+              }
+
+              const selectBox = document.createElement("div");
+              selectBox.classList.add("col-md-3", "mb-3");
+
+              const label = document.createElement("label");
+              label.textContent = ssid.name;
+              selectBox.appendChild(label);
+
+              var newSelectBox = document.createElement("select");
+              newSelectBox.classList.add("form-control");
+              newSelectBox.id = "input" + ssid.name;
+              newSelectBox.name = "ssid-" + ssid.number;
+
+              const defaultPolicies = ["Normal", "Allowed", "Blocked"];
+              defaultPolicies.forEach((option) => {
+                const newOption = document.createElement("option");
+                newOption.value = option;
+                newOption.textContent = option;
+                newSelectBox.appendChild(newOption);
+              });
+
+              data["policies"].forEach((option) => {
+                const newOption = document.createElement("option");
+                newOption.value = option.groupPolicyId;
+                newOption.textContent = option.name;
+                newSelectBox.appendChild(newOption);
+              });
+
+              // Append the SSID name and select elements to the row
+              selectBox.appendChild(newSelectBox);
+
+              // Append the row to the container
+              ssidHolder.appendChild(selectBox);
+            });
+          }
+          // Hide the spinner
+          spinner.classList.add("d-none");
+        })
+
+        .catch((error) => {
+          // Hide the spinner
+          spinner.classList.add("d-none");
+          console.error("Error:", error);
         });
-      }
-        // Hide the spinner
-        spinner.classList.add('d-none');
-  
-      })
-      
-      .catch(error => {
-        // Hide the spinner
-        spinner.classList.add('d-none');
-        console.error('Error:', error);
-      });
-  
-      } 
+    }
   });
-  </script>
+</script>
 
 <script>
   let csvJsonData;
-    document.getElementById('loadButton').addEventListener('click', function(event) {
-        event.preventDefault()
-        const expectedHeaders = ['name', 'mac'];
-        const fileInput = document.getElementById('csvFileInput');
-        // Check if file input is empty
-        if (fileInput.files.length === 0){
-          fileInput.style.borderColor = 'red';
-          return;
+  document
+    .getElementById("loadButton")
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      const expectedHeaders = ["name", "mac"];
+      const fileInput = document.getElementById("csvFileInput");
+      // Check if file input is empty
+      if (fileInput.files.length === 0) {
+        fileInput.style.borderColor = "red";
+        return;
+      }
+
+      fileInput.style.borderColor = "transparent";
+
+      const file = fileInput.files[0];
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        // CSV Validation
+        var csvValid = true;
+        const csvData = event.target.result;
+
+        const lines = csvData.split("\r\n");
+        const headers = lines[0].split(",");
+
+        if (headers.length !== expectedHeaders.length) {
+          console.error("CSV file has incorrect number of headers");
+          displayAlert(
+            `CSV file has incorrect number of headers. Expected ${expectedHeaders.length}, Given ${headers.length}`,
+            "danger"
+          );
+          csvValid = false;
         }
 
-        fileInput.style.borderColor = 'transparent';
+        for (let i = 0; i < headers.length; i++) {
+          if (headers[i].toLowerCase() !== expectedHeaders[i].toLowerCase()) {
+            console.error(`Incorrect header name at position ${i + 1}`);
+            displayAlert(
+              `Unexpected header name. Expected ${expectedHeaders[i]}, Given ${headers[i]}`,
+              "danger"
+            );
+            csvValid = false;
+            return;
+          }
+        }
 
-        const file = fileInput.files[0];
-
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-
-            // CSV Validation
-            var csvValid = true
-            const csvData = event.target.result;
-            
-            const lines = csvData.split('\r\n');
-            const headers = lines[0].split(',');
-
-            if (headers.length !== expectedHeaders.length) {
-                    console.error('CSV file has incorrect number of headers');
-                    displayAlert(`CSV file has incorrect number of headers. Expected ${expectedHeaders.length}, Given ${headers.length}`, 'danger')
-                    csvValid = false;
-                }
-
-            for (let i = 0; i < headers.length; i++) {
-                if (headers[i].toLowerCase() !== expectedHeaders[i].toLowerCase()) {
-                    console.error(`Incorrect header name at position ${i + 1}`);
-                    displayAlert(`Unexpected header name. Expected ${expectedHeaders[i]}, Given ${headers[i]}`, 'danger')
-                    csvValid = false;
-                    return
-                }
-            }
-
-            if (csvValid) {
-              // Convert CSV To Json
-              csvJsonData = csvToJson(csvData)
-              // Build Table
-              buildTableWithPagination(csvJsonData, 20);
-              // Enable/Show Elements
-              document.getElementById('provisionButton').disabled = false;
-              tableHideButton.hidden = false;
-              var collapse = new bootstrap.Collapse(tableContainer, { toggle: false });
-              collapse.show();
-            }
-        };
-        reader.readAsText(file);
+        if (csvValid) {
+          // Convert CSV To Json
+          csvJsonData = csvToJson(csvData);
+          // Build Table
+          buildTableWithPagination(csvJsonData, 20);
+          // Enable/Show Elements
+          document.getElementById("provisionButton").disabled = false;
+          tableHideButton.hidden = false;
+          var collapse = new bootstrap.Collapse(tableContainer, {
+            toggle: false,
+          });
+          collapse.show();
+        }
+      };
+      reader.readAsText(file);
     });
-
 </script>
-
-
-
-
-
 
 <!-- Upload Form Script -->
 <script>
-  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", function (event) {
       event.preventDefault();
       const formData = new FormData(this);
 
-      formData.delete('csvFileInput');
+      formData.delete("csvFileInput");
 
       // Add form fields to FormData
-      formData.append('devices', JSON.stringify(csvJsonData));
+      formData.append("devices", JSON.stringify(csvJsonData));
 
       // Convert FormData to JSON
       const jsonData = JSON.stringify(Object.fromEntries(formData));
 
-      asyncFetch(jsonData)
+      asyncFetch(jsonData);
+    });
 
-  });
-
-async function asyncFetch(jsonData) {
-  let response;
-  overlay.style.display = 'flex';
-  try {
-        response = await fetch('/upload', {
-          method: 'POST',
-          body: jsonData,
-          headers: {
-            'Content-Type': 'application/json'
-          }
+  async function asyncFetch(jsonData) {
+    let response;
+    overlay.style.display = "flex";
+    try {
+      response = await fetch("/upload", {
+        method: "POST",
+        body: jsonData,
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      } catch (error) {
-        console.log('There was an error', error);
+    } catch (error) {
+      console.log("There was an error", error);
+    }
+
+    // Uses the 'optional chaining' operator
+    if (response?.ok) {
+      console.log("Use the response here!");
+      displayAlert("Successfully added.", "success");
+    } else {
+      console.log(`HTTP Response Code: ${response?.status}`);
+      if (response?.status == 500) {
+        displayAlert("Uh oh, something went wrong", "danger");
       }
-
-      // Uses the 'optional chaining' operator
-      if (response?.ok) {
-        console.log('Use the response here!');
-        displayAlert('Successfully added.', 'success')
-
-      } else {
-        console.log(`HTTP Response Code: ${response?.status}`)
-        if (response?.status == 500) {
-          displayAlert('Uh oh, something went wrong', 'danger')
-        }
-        // Check if the response contains JSON data
-        if (response.headers.get('content-type').includes('application/json')) {
-          response.json().then(jsonData => {
-            if ('errors' in jsonData) {
-              for (var error in jsonData['errors']) {
-                displayAlert(jsonData['errors'][error], 'danger')
-              };
+      // Check if the response contains JSON data
+      if (response.headers.get("content-type").includes("application/json")) {
+        response.json().then((jsonData) => {
+          if ("errors" in jsonData) {
+            for (var error in jsonData["errors"]) {
+              displayAlert(jsonData["errors"][error], "danger");
             }
-            else if ('message' in jsonData) {
-              if ('errors' in jsonData['message']) {
-                for (var error in jsonData['message']['errors']) {
-                  displayAlert(jsonData['message']['errors'][error], 'danger')
-                }
+          } else if ("message" in jsonData) {
+            if ("errors" in jsonData["message"]) {
+              for (var error in jsonData["message"]["errors"]) {
+                displayAlert(jsonData["message"]["errors"][error], "danger");
               }
             }
+          }
         });
       }
+    }
+    overlay.style.display = "none";
   }
-  overlay.style.display = 'none';
-}
-
 </script>
-

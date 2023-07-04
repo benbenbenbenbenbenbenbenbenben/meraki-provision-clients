@@ -7,20 +7,35 @@ import meraki
 import json
 import os
 import csv
+import getpass
+
+
+#----------------------------------------------------------------------------#
+# Meraki Object
+#----------------------------------------------------------------------------#
+
+def get_meraki_dashboard():
+    if 'MERAKI_DASHBOARD_API_KEY' in os.environ:
+        api_key = os.environ['MERAKI_DASHBOARD_API_KEY']
+    else:
+        api_key = getpass.getpass("Enter your Meraki API key: ")
+
+    # Initialize the Meraki Dashboard object
+    dashboard = meraki.DashboardAPI(
+        api_key=api_key,
+        base_url='https://api.meraki.com/api/v1/',
+        output_log=False,
+        print_console=False
+    )
+    return dashboard
 
 #----------------------------------------------------------------------------#
 # App Config
 #----------------------------------------------------------------------------#
 
 app = Flask(__name__)
-app_title = 'Meraki - Provision Clients'
-# Instantiate a Meraki dashboard API session
-m = meraki.DashboardAPI(
-    api_key='',
-    base_url='https://api.meraki.com/api/v1/',
-    output_log=False,
-    print_console=False
-)
+app_title = 'Meraki Client Provisioning Web App'
+m = get_meraki_dashboard()
 
 #----------------------------------------------------------------------------#
 # Controllers
@@ -29,8 +44,11 @@ m = meraki.DashboardAPI(
 # Main Page
 @app.route('/', methods=["GET"])
 def home():
-    orgs = get_organisations()
-    return render_template('base.html', app_title=app_title, contents='form.html', orgs=orgs)
+    orgs, code = get_organisations()
+    if code != 200:
+        return render_template('base.html', app_title=app_title, contents='form.html', orgs=[])
+    else:
+        return render_template('base.html', app_title=app_title, contents='form.html', orgs=orgs)
 
 # Networks
 @app.route('/networks', methods=["GET"])
@@ -50,9 +68,13 @@ def upload():
     if errors:
         return jsonify({'errors': errors}), 400
     
+    # Group Policy ID
+    if data['inputPolicy'] == 'Group policy' and 'inputGroupPolicy' in data:
+        groupPolicyId = data['inputGroupPolicy']
+
     # Per connection - Create SSID Policy Dict
-    policiesBySsid = {}
     if data['inputPolicy'] == 'Per connection':
+        policiesBySsid = {}
         for k, v in data.items():
             if k.startswith('ssid-'):
                 ssid = k.replace('ssid-', '')
@@ -79,7 +101,12 @@ def upload():
 
     # Loop through the batches
     for batch in batches:
-        provision, code = provision_clients(data['inputNetwork'], batch, data['inputPolicy'], policiesBySsid=policiesBySsid)
+        if data['inputPolicy'] == 'Group policy' and 'inputGroupPolicy' in data:
+            provision, code = provision_clients(data['inputNetwork'], batch, data['inputPolicy'], groupPolicyId=data['inputGroupPolicy'])
+        elif data['inputPolicy'] == 'Per connection':
+            provision, code = provision_clients(data['inputNetwork'], batch, data['inputPolicy'], policiesBySsid=policiesBySsid)
+        else:
+            provision, code = provision_clients(data['inputNetwork'], batch, data['inputPolicy'])
         if not isinstance(provision, bool):
             return jsonify(provision), code
     return jsonify(provision), code
@@ -127,6 +154,7 @@ def provision():
                             "name": f"Device {number}"
                         })
         export_to_csv(data, 'test.csv')
+        return render_template('base.html', app_title=app_title, contents='404.html', serial='test.csv created!'), 200
 
 # 404
 @app.errorhandler(404)
@@ -156,15 +184,6 @@ def validate_form_data(data):
     # Add more validation checks for other fields as needed
     print("Errors: ",errors)
     return errors
-
-# Read JSON File
-def read_json_file(file):
-    try:
-        with open(f'static/{file}.json') as f:
-            return json.load(f)
-    except OSError as e: 
-        print(e)
-        return False
     
 #######################
 # MERAKI APIs
@@ -174,12 +193,16 @@ def read_json_file(file):
 def get_organisations():
     try:
         orgs = m.organizations.getOrganizations()
-        return orgs
+        return orgs, 200
     except meraki.APIError as e:
         print(f'Meraki API error: {e}')
         print(f'status code = {e.status}')
         print(f'reason = {e.reason}')
         print(f'error = {e.message}')
+        return {
+            'message':e.message,
+            'error':e.status
+        }, e.status
     except Exception as e:
         print(f'some other error: {e}')
 
@@ -200,7 +223,6 @@ def get_networks(orgId):
 def get_network_policies(networkId):
     try:
         policies = m.networks.getNetworkGroupPolicies(networkId)
-        print(policies)
         return policies
     except meraki.APIError as e:
         print(f'Meraki API error: {e}')
@@ -214,7 +236,6 @@ def get_network_policies(networkId):
 def get_wireless_ssids(networkId):
     try:
         ssids = m.wireless.getNetworkWirelessSsids(networkId)
-        print(ssids)
         return ssids
     except meraki.APIError as e:
         print(f'Meraki API error: {e}')
@@ -226,12 +247,14 @@ def get_wireless_ssids(networkId):
 
 
 # Provision Clients
-def provision_clients(network, clients:list, policy, policiesBySsid=None):
+def provision_clients(network, clients:list, policy, **kwargs):
     try:
-        if policiesBySsid is None or not bool(policiesBySsid):
-            provision = m.networks.provisionNetworkClients(network, clients, policy)
-        else:
-            provision = m.networks.provisionNetworkClients(network, clients, policy, policiesBySsid=policiesBySsid)
+        # if 'policiesBySsid' in kwargs:
+        #     provision = m.networks.provisionNetworkClients(network, clients, policy, policiesBySsid=kwargs['policiesBySsid'])
+        # elif 'groupPolicyId' in kwargs:
+        #     provision = m.networks.provisionNetworkClients(network, clients, policy, groupPolicyId=kwargs['groupPolicyId'])
+        # else:
+        provision = m.networks.provisionNetworkClients(network, clients, policy, **kwargs)
         return True, 200
     except meraki.APIError as e:
         print(f'Meraki API error: {e}')
@@ -251,7 +274,6 @@ def provision_clients(network, clients:list, policy, policiesBySsid=None):
 def get_clients(networkId):
     # try:
     clients = m.networks.getNetworkPoliciesByClient(networkId, total_pages='all', perPage=500)
-    print(clients)
     return clients
     # except meraki.APIError as e:
     #     print(f'Meraki API error: {e}')
@@ -266,12 +288,6 @@ def get_clients(networkId):
 def split_list_into_batches(lst, batch_size):
     for i in range(0, len(lst), batch_size):
         yield lst[i:i + batch_size]
-
-# CSV Check and Remove BOM
-def remove_bom(csv_data):
-    if csv_data.startswith('\ufeff'):
-        return csv_data[1:]
-    return csv_data
 
 
 def export_to_csv(data, filename):
@@ -291,11 +307,6 @@ def export_to_csv(data, filename):
 
     print(f"CSV file '{filename}' exported successfully!")
 
-# Specify the filename for the CSV file
-filename = 'data.csv'
-
-
-
 #----------------------------------------------------------------------------#
 # Launch
 #----------------------------------------------------------------------------#
@@ -307,4 +318,5 @@ filename = 'data.csv'
 # Or specify port manually:
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5050))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(host='127.0.0.1', port=port)
+
