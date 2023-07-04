@@ -144,7 +144,7 @@ def provision():
     if request.method == "GET":
         data = []
         mac = '00:00:00:'
-        max = 50
+        max = int(request.args.get('max', 100))
 
         for number in range(max):
             hex_num = hex(number)[2:].zfill(6)

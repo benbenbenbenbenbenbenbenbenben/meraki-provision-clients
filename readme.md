@@ -65,7 +65,8 @@ Follow the steps below to set up the Meraki Client Provisioning Web App:
 
 
 ## Notes
-
+Create test csv file of mac addresses and names `http://127.0.0.1:5050/test_file?max=1000`. Default is 100 or change max value for custom number. File saves to project folder.
+ 
 Flask server is accessible locally only (127.0.0.1). You may wish to change to make this public, however the API Key is server side and the client to server requests are without any authentication. Therefore any network user could make requests.
 
 There is a limit of 3,000 clients that can have a group policy manually applied per network - [Meraki Documentation](https://documentation.meraki.com/General_Administration/Cross-Platform_Content/Creating_and_Applying_Group_Policies).
