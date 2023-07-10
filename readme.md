@@ -60,7 +60,7 @@ Follow the steps below to set up the Meraki Client Provisioning Web App:
      python app.py
      ```
 
-   - The web application will be accessible at `http://127.0.0.1:5050`
+   - The web application will be accessible at `http://127.0.0.1:5000`
 
    - If you did not add Meraki API Key (step 5), the terminal will request you add now.
 
@@ -69,7 +69,7 @@ Follow the steps below to set up the Meraki Client Provisioning Web App:
 ## Notes
 To view provisioned clients that have not yet connected to a Meraki Device goto **Network-wide** > **Clients** and select **"all clients with a policy"** from Clients dropdown.
 
-Create test csv file of mac addresses and names `http://127.0.0.1:5050/test_file?max=1000`. Default is 100 or change max value for custom number. File saves to project folder.
+Create test csv file of mac addresses and names `http://127.0.0.1:5000/test_file?max=1000`. Default is 100 or change max value for custom number. File saves to project folder.
 
 Flask server is accessible locally only (127.0.0.1). You may wish to change to make this public, however the API Key is server side and the client to server requests are without any authentication. Therefore any network user could make requests.
 

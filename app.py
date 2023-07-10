@@ -9,7 +9,6 @@ import os
 import csv
 import getpass
 
-
 #----------------------------------------------------------------------------#
 # Meraki Object
 #----------------------------------------------------------------------------#
@@ -68,10 +67,6 @@ def upload():
     if errors:
         return jsonify({'errors': errors}), 400
     
-    # Group Policy ID
-    if data['inputPolicy'] == 'Group policy' and 'inputGroupPolicy' in data:
-        groupPolicyId = data['inputGroupPolicy']
-
     # Per connection - Create SSID Policy Dict
     if data['inputPolicy'] == 'Per connection':
         policiesBySsid = {}
@@ -122,25 +117,14 @@ def policy():
     if value.lower() == 'group policy' or value.lower() == 'per connection':
         data['policies'] = get_network_policies(networkId)
         data['ssids'] = get_wireless_ssids(networkId)
-
     else:
         data = {}
-
-    # Return the response as JSON
-    return jsonify(data)
-
-# Policies
-@app.route('/clients', methods=["GET"])
-def clients():
-    # Get the value from the query parameters
-    networkId = request.args.get('networkId')
-    data = get_clients(networkId)
     # Return the response as JSON
     return jsonify(data)
 
 # Create test file of device names and mac addresses
 @app.route('/test_file', methods=["GET"])
-def provision():
+def test_file():
     if request.method == "GET":
         data = []
         mac = '00:00:00:'
@@ -249,11 +233,6 @@ def get_wireless_ssids(networkId):
 # Provision Clients
 def provision_clients(network, clients:list, policy, **kwargs):
     try:
-        # if 'policiesBySsid' in kwargs:
-        #     provision = m.networks.provisionNetworkClients(network, clients, policy, policiesBySsid=kwargs['policiesBySsid'])
-        # elif 'groupPolicyId' in kwargs:
-        #     provision = m.networks.provisionNetworkClients(network, clients, policy, groupPolicyId=kwargs['groupPolicyId'])
-        # else:
         provision = m.networks.provisionNetworkClients(network, clients, policy, **kwargs)
         return True, 200
     except meraki.APIError as e:
@@ -268,21 +247,6 @@ def provision_clients(network, clients:list, policy, **kwargs):
     except Exception as e:
         print(f'some other error: {e}')
         return f'reason = {e}'
-    
-        
-# Get policies for all clients with policies
-def get_clients(networkId):
-    # try:
-    clients = m.networks.getNetworkPoliciesByClient(networkId, total_pages='all', perPage=500)
-    return clients
-    # except meraki.APIError as e:
-    #     print(f'Meraki API error: {e}')
-    #     print(f'status code = {e.status}')
-    #     print(f'reason = {e.reason}')
-    #     print(f'error = {e.message}')
-    # except Exception as e:
-    #     print(f'some other error: {e}')
-
 
 # General Functions
 def split_list_into_batches(lst, batch_size):
@@ -315,8 +279,6 @@ def export_to_csv(data, filename):
 # if __name__ == "__main__":
 #     app.run(debug=True, port=5001)
 
-# Or specify port manually:
 if __name__ == '__main__':
-    # port = int(os.environ.get('PORT', 5050))
     app.run()
 
