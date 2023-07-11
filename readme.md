@@ -50,7 +50,7 @@ Follow the steps below to set up the Meraki Client Provisioning Web App:
 5. Add Meraki API Key (optional):
    - Run the following command to add the key:
      ```bash
-     export MERAKI_API_KEY=your_api_key_here
+     export MERAKI_DASHBOARD_API_KEY=your_api_key_here
      ```
 
 6. Run the web application:
