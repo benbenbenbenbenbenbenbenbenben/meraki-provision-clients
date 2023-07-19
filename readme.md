@@ -65,6 +65,10 @@ Follow the steps below to set up the Meraki Client Provisioning Web App:
    - If you did not add Meraki API Key (step 5), the terminal will request you add now.
 
 
+## CSV
+ - CSV headers can only be `name` and `mac`.
+ - Max name field is `255` characters
+ - Valid name characters are: `a-z`, `A-Z`, `0-9`, `! ? @ # ( ) - _ : ' . /`
 
 ## Notes
 To view provisioned clients that have not yet connected to a Meraki Device goto **Network-wide** > **Clients** and select **"all clients with a policy"** from Clients dropdown.
