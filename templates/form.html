@@ -37,12 +37,50 @@
         <div class="row">
           <h5>Network</h5>
           <div class="form-group">
+            <input
+              type="radio"
+              class="btn-check"
+              name="options-network"
+              id="inputSingleNetwork"
+              autocomplete="off"
+              checked
+            />
+            <label class="btn" for="inputSingleNetwork">Single</label>
+            <!-- <input
+              type="radio"
+              class="btn-check"
+              name="options-network"
+              value="multi"
+              id="inputMultiNetworks"
+              autocomplete="off"
+            />
+            <label class="btn" for="inputMultiNetworks">Multi</label> -->
+            <input
+              type="radio"
+              class="btn-check"
+              name="options-network"
+              value="all"
+              id="inputAllNetworks"
+              autocomplete="off"
+            />
+            <label class="btn" for="inputAllNetworks"
+              >All
+              <span
+                id="badgeAllNetworksNum"
+                class="badge text-bg-secondary"
+              ></span
+            ></label>
+
             <select
               id="inputNetwork"
               class="form-control"
               name="inputNetwork"
               disabled
             ></select>
+            <div id="loading-bar-container">
+              <div id="loading-bar"></div>
+            </div>
+            <div class="row" id="multiNetworksHolder"></div>
           </div>
         </div>
         <hr />
@@ -88,9 +126,7 @@
         <hr />
         <!-- SSIDs -->
         <h5>SSIDs</h5>
-        <div class="row" id="ssidHolder">
-          <!-- <div class="form-group" id="ssidHolder"></div> -->
-        </div>
+        <div class="row" id="ssidHolder"></div>
         <hr />
         <!-- Devices -->
         <h5>Devices</h5>
@@ -170,12 +206,18 @@
 <script>
   // Elements
   const inputOrg = document.getElementById("inputOrg");
+  const inputSingleNetwork = document.getElementById("inputSingleNetwork");
+  const inputMultiNetworks = document.getElementById("inputMultiNetworks");
+  const inputAllNetworks = document.getElementById("inputAllNetworks");
+  const badgeAllNetworksNum = document.getElementById("badgeAllNetworksNum");
   const inputNetwork = document.getElementById("inputNetwork");
   const inputPolicy = document.getElementById("inputPolicy");
   const inputGroupPolicy = document.getElementById("inputGroupPolicy");
   const ssidHolder = document.getElementById("ssidHolder");
+  const multiNetworksHolder = document.getElementById("multiNetworksHolder");
   const tableHideButton = document.getElementById("tableHideButton");
   const overlay = document.getElementById("overlay");
+  const defaultPolicies = ["Normal", "Allowed", "Blocked"];
 
   // Table Hide/Show
   $("#tableContainer").on("hidden.bs.collapse", function () {
@@ -191,6 +233,7 @@
     spinner.classList.remove("d-none");
 
     //Reset Changes
+    multiNetworksHolder.innerHTML = "";
     ssidHolder.innerHTML = "";
     inputPolicy.disabled = true;
     inputGroupPolicy.disabled = true;
@@ -221,6 +264,9 @@
         });
 
         inputNetwork.disabled = false;
+
+        badgeAllNetworksNum.innerHTML = inputNetwork.options.length - 1;
+
         // Hide the spinner
         spinner.classList.add("d-none");
       })
@@ -231,9 +277,172 @@
       });
   });
 
+  // Handle All Network Check Change
+  inputAllNetworks.addEventListener("change", (event) => {
+    if (event.currentTarget.checked) {
+      inputNetwork.disabled = true;
+      inputNetwork.hidden = true;
+    } else {
+      inputNetwork.hidden = false;
+      inputNetwork.disabled = false;
+    }
+    //Reset Changes
+
+    multiNetworksHolder.innerHTML = "";
+    ssidHolder.innerHTML = "";
+    inputGroupPolicy.disabled = true;
+    inputPolicy.disabled = false;
+    inputPolicy.value = "";
+  });
+
+  // Function to fetch data from an API asynchronously
+  async function fetchPolicyData(apiURL) {
+    const response = await fetch(apiURL);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.json();
+  }
+
+  // Function to update the select box with options
+  function updateSelectBox(options) {
+    const networkOptions = inputNetwork.options;
+
+    options.forEach((option) => {
+      console.log(option);
+      const selectBox = document.createElement("div");
+      selectBox.classList.add("col-md-3", "mb-3");
+
+      const label = document.createElement("label");
+      label.classList.add("text-nowrap");
+      label.textContent = option.networkId;
+      selectBox.appendChild(label);
+
+      var newSelectBox = document.createElement("select");
+      newSelectBox.classList.add("form-control");
+      newSelectBox.id = "input" + option.networkId;
+      newSelectBox.name = "network-" + option.networkId;
+
+      defaultPolicies.forEach((defaultPolicy) => {
+        const newOption = document.createElement("option");
+        newOption.value = defaultPolicy;
+        newOption.textContent = defaultPolicy;
+        newSelectBox.appendChild(newOption);
+      });
+      option["data"]["policies"].forEach((policy) => {
+        const newOption = document.createElement("option");
+        newOption.value = policy.groupPolicyId;
+        newOption.textContent = policy.name;
+        newSelectBox.appendChild(newOption);
+      });
+
+      // Append the SSID name and select elements to the row
+      selectBox.appendChild(newSelectBox);
+      // Append the row to the container
+      multiNetworksHolder.appendChild(selectBox);
+    });
+  }
+
+  async function asyncLoadNetworks() {
+    console.log("Async function start");
+    // Load Each Network To Select
+    const networkOptions = inputNetwork.options;
+
+    // Loop through the options to extract their values and text
+    const networkList = [];
+    for (let i = 0; i < networkOptions.length; i++) {
+      try {
+        if (networkOptions[i].value == 0) {
+          continue;
+        }
+        const networkId = networkOptions[i].value;
+        const networkName = networkOptions[i].text;
+
+        const selectBox = document.createElement("div");
+        selectBox.classList.add("col-md-3", "mb-3");
+
+        const label = document.createElement("label");
+        label.classList.add("text-nowrap");
+        label.textContent = networkName;
+        selectBox.appendChild(label);
+
+        var newSelectBox = document.createElement("select");
+        newSelectBox.classList.add("form-control");
+        newSelectBox.id = "input" + networkName;
+        newSelectBox.name = "network-" + networkId;
+
+        defaultPolicies.forEach((option) => {
+          const newOption = document.createElement("option");
+          newOption.value = option;
+          newOption.textContent = option;
+          newSelectBox.appendChild(newOption);
+        });
+
+        // Make the API call
+        fetch("/policy?value=Group Policy&networkId=" + networkId)
+          .then((response) => response.json())
+          .then((data) => {
+            // Iterate over the data and create options
+            // Policies
+            data["policies"].forEach((option) => {
+              const newOption = document.createElement("option");
+              newOption.value = option.groupPolicyId;
+              newOption.textContent = option.name;
+              newSelectBox.appendChild(newOption);
+            });
+          });
+
+        // Append the SSID name and select elements to the row
+        selectBox.appendChild(newSelectBox);
+        // Append the row to the container
+        multiNetworksHolder.appendChild(selectBox);
+      } catch (error) {
+        console.error("An error occurred:", error.message);
+      }
+    }
+    console.log("Async function end");
+  }
+
+  // // Handle Multi Network Check Change
+  // inputMultiNetworks.addEventListener("change", (event) => {
+  //   if (event.currentTarget.checked) {
+  //     inputNetwork.disabled = true;
+  //     inputNetwork.hidden = true;
+  //   } else {
+  //     inputNetwork.hidden = false;
+  //     inputNetwork.disabled = false;
+  //   }
+  //   //Reset Changes
+  //   multiNetworksHolder.innerHTML = "";
+  //   ssidHolder.innerHTML = "";
+  //   inputGroupPolicy.disabled = true;
+  //   inputPolicy.disabled = false;
+  //   inputPolicy.value = "";
+
+  //   asyncLoadNetworks();
+  // });
+
+  // Handle Single Network Check Change
+  inputSingleNetwork.addEventListener("change", (event) => {
+    if (event.currentTarget.checked) {
+      inputNetwork.disabled = false;
+      inputNetwork.hidden = false;
+    } else {
+      inputNetwork.hidden = true;
+      inputNetwork.disabled = true;
+    }
+    //Reset Changes
+    multiNetworksHolder.innerHTML = "";
+    ssidHolder.innerHTML = "";
+    inputGroupPolicy.disabled = true;
+    inputPolicy.disabled = false;
+    inputPolicy.value = "";
+  });
+
   // Handle Network Select Change
   inputNetwork.addEventListener("change", (event) => {
     //Reset Changes
+    multiNetworksHolder.innerHTML = "";
     ssidHolder.innerHTML = "";
     inputGroupPolicy.disabled = true;
     inputPolicy.disabled = false;
@@ -249,85 +458,94 @@
     ssidHolder.innerHTML = "";
     inputGroupPolicy.disabled = true;
 
-    // Get Network ID
-    const networkId = document.getElementById("inputNetwork");
+    // Check if All Networks or Singular
+    if (inputAllNetworks.checked) {
+      console.log("All Networks Per Connection Chosen");
+      perConnectionCreateFormTable();
+      // Funtion to create form and rows, add spinners on loading items
+      // Async Functions to fetch field data
+    } else {
+      // Get Network ID
+      const networkId = document.getElementById("inputNetwork");
 
-    if (triggers.includes(changedPolicy)) {
-      const spinner = document.getElementById("policySpin");
-      spinner.classList.remove("d-none");
+      if (triggers.includes(changedPolicy)) {
+        const spinner = document.getElementById("policySpin");
+        spinner.classList.remove("d-none");
 
-      // Make the API call
-      fetch("/policy?value=" + changedPolicy + "&networkId=" + networkId.value)
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
+        // Make the API call
+        fetch(
+          "/policy?value=" + changedPolicy + "&networkId=" + networkId.value
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
 
-          // Remove Options
-          inputGroupPolicy.options.length = 0;
+            // Remove Options
+            inputGroupPolicy.options.length = 0;
 
-          // Iterate over the data and create options
-          if (changedPolicy == "Group policy") {
-            // Policies
-            data["policies"].forEach((option) => {
-              const newOption = document.createElement("option");
-              newOption.value = option.groupPolicyId;
-              newOption.textContent = option.name;
-              inputGroupPolicy.appendChild(newOption);
-            });
-            inputGroupPolicy.disabled = false;
-          }
-
-          //SSIDs
-          if (changedPolicy == "Per connection") {
-            data["ssids"].forEach((ssid) => {
-              // Skip the current iteration if "Unconfigured" is found in the string
-              if (ssid.name.includes("Unconfigured")) {
-                return;
-              }
-
-              const selectBox = document.createElement("div");
-              selectBox.classList.add("col-md-3", "mb-3");
-
-              const label = document.createElement("label");
-              label.textContent = ssid.name;
-              selectBox.appendChild(label);
-
-              var newSelectBox = document.createElement("select");
-              newSelectBox.classList.add("form-control");
-              newSelectBox.id = "input" + ssid.name;
-              newSelectBox.name = "ssid-" + ssid.number;
-
-              const defaultPolicies = ["Normal", "Allowed", "Blocked"];
-              defaultPolicies.forEach((option) => {
-                const newOption = document.createElement("option");
-                newOption.value = option;
-                newOption.textContent = option;
-                newSelectBox.appendChild(newOption);
-              });
-
+            // Iterate over the data and create options
+            if (changedPolicy == "Group policy") {
+              // Policies
               data["policies"].forEach((option) => {
                 const newOption = document.createElement("option");
                 newOption.value = option.groupPolicyId;
                 newOption.textContent = option.name;
-                newSelectBox.appendChild(newOption);
+                inputGroupPolicy.appendChild(newOption);
               });
+              inputGroupPolicy.disabled = false;
+            }
 
-              // Append the SSID name and select elements to the row
-              selectBox.appendChild(newSelectBox);
+            //SSIDs
+            if (changedPolicy == "Per connection") {
+              data["ssids"].forEach((ssid) => {
+                // Skip the current iteration if "Unconfigured" is found in the string
+                if (ssid.name.includes("Unconfigured")) {
+                  return;
+                }
 
-              // Append the row to the container
-              ssidHolder.appendChild(selectBox);
-            });
-          }
-          // Hide the spinner
-          spinner.classList.add("d-none");
-        })
+                const selectBox = document.createElement("div");
+                selectBox.classList.add("col-md-3", "mb-3");
 
-        .catch((error) => {
-          // Hide the spinner
-          spinner.classList.add("d-none");
-          console.error("Error:", error);
-        });
+                const label = document.createElement("label");
+                label.textContent = ssid.name;
+                selectBox.appendChild(label);
+
+                var newSelectBox = document.createElement("select");
+                newSelectBox.classList.add("form-control");
+                newSelectBox.id = "input" + ssid.name;
+                newSelectBox.name = "ssid-" + ssid.number;
+
+                defaultPolicies.forEach((option) => {
+                  const newOption = document.createElement("option");
+                  newOption.value = option;
+                  newOption.textContent = option;
+                  newSelectBox.appendChild(newOption);
+                });
+
+                data["policies"].forEach((option) => {
+                  const newOption = document.createElement("option");
+                  newOption.value = option.groupPolicyId;
+                  newOption.textContent = option.name;
+                  newSelectBox.appendChild(newOption);
+                });
+
+                // Append the SSID name and select elements to the row
+                selectBox.appendChild(newSelectBox);
+
+                // Append the row to the container
+                ssidHolder.appendChild(selectBox);
+              });
+            }
+            // Hide the spinner
+            spinner.classList.add("d-none");
+          })
+
+          .catch((error) => {
+            // Hide the spinner
+            spinner.classList.add("d-none");
+            console.error("Error:", error);
+          });
+      }
     }
   });
 </script>
@@ -397,6 +615,195 @@
       };
       reader.readAsText(file);
     });
+
+  function perConnectionCreateFormTable() {
+    // Get table
+    // Load Each Network To Select
+    const networkOptions = inputNetwork.options;
+    let networkIds = [];
+
+    let defaultPoliciesOptions = `<option value="" selected disabled> Global Policy </option>`;
+    defaultPolicies.forEach((option) => {
+      defaultPoliciesOptions += `<option value='${option}'>${option} </option>`;
+    });
+
+    // Loop through the options to extract their values and text
+    let table = `<table id="perConnectionFormTable" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Network Name</th>
+              <th scope="col">
+                <select class="form-select" name="ssid-all" id="ssid-all" disabled>
+                  <option value="" selected disabled>
+                    Select SSID
+                  </option>
+                </select>
+              </th>
+              <th scope="col">
+                <select class="form-select" name="policy-all" id="policy-all" disabled>
+                  ${defaultPoliciesOptions}
+                </select>
+              </th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+    for (let i = 0; i < networkOptions.length; i++) {
+      try {
+        if (networkOptions[i].value == 0) {
+          continue;
+        }
+        const networkId = networkOptions[i].value;
+        const networkName = networkOptions[i].text;
+
+        const newRow = `
+            <tr>
+              <td>
+                <input type="text" readonly class="form-control" name="networkId-${networkId}" id="${networkId}" value="${networkName}">
+                <span id="spinner-${networkId}" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </td>
+              <td>
+                <select class="form-select" name="ssid-${networkId}" id="ssid-${networkId}">
+                  <option value="" selected disabled>
+                    Select SSID
+                  </option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select" name="policy-${networkId}" id="policy-${networkId}">
+                  <option value="" selected disabled>
+                    Select Policy
+                  </option>
+                </select>
+              </td>
+            </tr>
+          `;
+        table += newRow;
+
+        networkIds.push(networkId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    table += `</tbody>
+        </table>`;
+    ssidHolder.innerHTML = table;
+
+    // Get SSIDs
+    const promises = networkIds.map((networkId) => getSSIDPolicies(networkId));
+
+    Promise.all(promises)
+      .then((results) => {
+        document.getElementById("policy-all").disabled = false;
+        document.getElementById("ssid-all").disabled = false;
+      })
+      .catch((error) => {
+        console.error("An error occurred:", error);
+      });
+
+    //Add Onchange for Policy
+    document
+      .getElementById("policy-all")
+      .addEventListener("change", (event) => {
+        console.log(event.target.value);
+
+        // Get all elements with a name attribute that contains "policy-"
+        const policyElements = document.querySelectorAll('[name*="policy-"]');
+
+        // Loop through the selected elements
+        policyElements.forEach((element) => {
+          if (element.id == "policy-all") {
+            return;
+          }
+          element.value = event.target.value;
+          // element.disabled = true;
+        });
+      });
+
+    //Add Onchange for SSID
+    document.getElementById("ssid-all").addEventListener("change", (event) => {
+      // Get all elements with a name attribute that contains "policy-"
+      const ssidElements = document.querySelectorAll('[name*="ssid-"]');
+
+      // Loop through the selected elements
+      ssidElements.forEach((element) => {
+        if (element.id == "ssid-all") {
+          return;
+        }
+        for (let i = 0; i < element.options.length; i++) {
+          if (element.options[i].value === event.target.value) {
+            element.options[i].selected = true;
+            // Check SSID Name Matches
+            const selectedOption =
+              event.target.options[event.target.selectedIndex];
+            if (element.options[i].textContent === selectedOption.text) {
+              element.classList.add("is-valid");
+            } else {
+              element.classList.add("is-invalid");
+            }
+            // element.disabled = true;
+            return;
+          }
+        }
+      });
+    });
+  }
+
+  async function getSSIDPolicies(networkId) {
+    // Make the API call
+    await fetch("/policy?value=Per connection&networkId=" + networkId)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const ssidAllSelectElement = document.getElementById(`ssid-all`);
+        const ssidSelectElement = document.getElementById(`ssid-${networkId}`);
+        const ssidPolicyElement = document.getElementById(
+          `policy-${networkId}`
+        );
+        if (!data["ssids"]) {
+          console.log(data["networkId"], "No SSIDs");
+          // Remove Row
+          const row = ssidSelectElement.closest("tr");
+          row.remove();
+          return;
+        }
+
+        // Load SSIDS
+        data["ssids"].forEach((ssid) => {
+          // Skip the current iteration if "Unconfigured" is found in the string
+          if (ssid.name.includes("Unconfigured")) {
+            return;
+          }
+          const newOption = document.createElement("option");
+          newOption.value = ssid.number;
+          newOption.textContent = ssid.name + ` (${ssid.number + 1})`;
+          ssidSelectElement.appendChild(newOption);
+          const allOption = document.createElement("option");
+          allOption.value = ssid.number;
+          allOption.textContent = ssid.name + ` (${ssid.number + 1})`;
+          ssidAllSelectElement.appendChild(allOption);
+        });
+
+        // Load Policies
+        defaultPolicies.forEach((option) => {
+          const newOption = document.createElement("option");
+          newOption.value = option;
+          newOption.textContent = option;
+          ssidPolicyElement.appendChild(newOption);
+        });
+
+        data["policies"].forEach((policy) => {
+          const newOption = document.createElement("option");
+          newOption.value = policy.groupPolicyId;
+          newOption.textContent = policy.name;
+          ssidPolicyElement.appendChild(newOption);
+        });
+
+        // Remove Spinner
+        document.getElementById(`spinner-${networkId}`).remove();
+      });
+  }
 </script>
 
 <!-- Upload Form Script -->
@@ -409,16 +816,47 @@
 
       formData.delete("csvFileInput");
 
-      // Add form fields to FormData
-      formData.append("devices", JSON.stringify(csvJsonData));
+      const formDataObject = Object.fromEntries(formData);
 
-      // Convert FormData to JSON
-      const jsonData = JSON.stringify(Object.fromEntries(formData));
+      // Check for single or all networks
+      if ("options-network" in formDataObject) {
+        if (formDataObject["options-network"] === "all") {
+          for (const key in formDataObject) {
+            if (formDataObject.hasOwnProperty(key)) {
+              if (key.startsWith("networkId-")) {
+                let netId = key.replace("networkId-", "");
+                let ssidValue = formDataObject[`ssid-${netId}`];
+                let ssidKey = `ssid-${ssidValue}`;
+                let networkName = formDataObject[`networkId-${netId}`];
+                let policy = formDataObject[`policy-${netId}`];
+                let networkObject = {
+                  inputOrg: formDataObject["inputOrg"],
+                  inputNetwork: netId,
+                  inputPolicy: formDataObject["inputPolicy"],
+                  ssidKey: policy,
+                  devices: JSON.stringify(csvJsonData),
+                };
+                console.log(networkObject);
+                // Convert FormData to JSON
+                const jsonData = JSON.stringify(networkObject);
+                console.log(document.getElementById(netId))
+                asyncFetch(jsonData, networkName, document.getElementById(netId));
+              }
+            }
+          }
+        } else {
+          // Add form fields to FormData
+          formData.append("devices", JSON.stringify(csvJsonData));
 
-      asyncFetch(jsonData);
+          // Convert FormData to JSON
+          const jsonData = JSON.stringify(Object.fromEntries(formData));
+          asyncFetch(jsonData);
+        }
+      }
     });
 
-  async function asyncFetch(jsonData) {
+  async function asyncFetch(jsonData, networkName = 'Network', networkNameElement = false) {
+    console.log(networkNameElement)
     let response;
     overlay.style.display = "flex";
     try {
@@ -435,12 +873,17 @@
 
     // Uses the 'optional chaining' operator
     if (response?.ok) {
-      console.log("Use the response here!");
-      displayAlert("Successfully added.", "success");
+      if(networkNameElement){
+        networkNameElement.classList.add('is-valid')
+      }
+      displayAlert(`Successfully added to ${networkName}.`, "success");
     } else {
       console.log(`HTTP Response Code: ${response?.status}`);
       if (response?.status == 500) {
-        displayAlert("Uh oh, something went wrong", "danger");
+        displayAlert(`Uh oh, something went wrong on ${networkName}.` , "danger");
+        if(networkNameElement){
+        networkNameElement.classList.add('is-invalid')
+      }
       }
       // Check if the response contains JSON data
       if (response.headers.get("content-type").includes("application/json")) {
@@ -449,10 +892,16 @@
             for (var error in jsonData["errors"]) {
               displayAlert(jsonData["errors"][error], "danger");
             }
+            if(networkNameElement){
+                networkNameElement.classList.add('is-invalid')
+              }
           } else if ("message" in jsonData) {
             if ("errors" in jsonData["message"]) {
               for (var error in jsonData["message"]["errors"]) {
                 displayAlert(jsonData["message"]["errors"][error], "danger");
+              }
+              if(networkNameElement){
+                networkNameElement.classList.add('is-invalid')
               }
             }
           }

@@ -117,6 +117,7 @@ def policy():
     if value.lower() == 'group policy' or value.lower() == 'per connection':
         data['policies'] = get_network_policies(networkId)
         data['ssids'] = get_wireless_ssids(networkId)
+        data['networkId'] = networkId 
     else:
         data = {}
     # Return the response as JSON
@@ -276,9 +277,9 @@ def export_to_csv(data, filename):
 #----------------------------------------------------------------------------#
 
 # Debug:
-# if __name__ == "__main__":
-#     app.run(debug=True, port=5001)
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)
 
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
 

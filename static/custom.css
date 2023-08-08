@@ -50,8 +50,11 @@ h4 {
 }
 
 /* Buttons */
-
 .btn {
+  margin: 10px 1px;
+  cursor: pointer;
+}
+/* .btn {
   font-size: 0.8571em;
   border: none;
   margin: 10px 1px;
@@ -96,7 +99,7 @@ h4 {
 .btn.focus, .btn:focus {
   outline: 0;
   box-shadow: none;
-}
+} */
 
 /* Table */
 .table > thead > tr > th {
