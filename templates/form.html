@@ -244,7 +244,6 @@
     fetch("/networks?orgId=" + orgId.value)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
 
         // Remove Options
         inputNetwork.options.length = 0;
@@ -309,7 +308,6 @@
     const networkOptions = inputNetwork.options;
 
     options.forEach((option) => {
-      console.log(option);
       const selectBox = document.createElement("div");
       selectBox.classList.add("col-md-3", "mb-3");
 
@@ -344,7 +342,6 @@
   }
 
   async function asyncLoadNetworks() {
-    console.log("Async function start");
     // Load Each Network To Select
     const networkOptions = inputNetwork.options;
 
@@ -400,7 +397,6 @@
         console.error("An error occurred:", error.message);
       }
     }
-    console.log("Async function end");
   }
 
   // // Handle Multi Network Check Change
@@ -460,7 +456,6 @@
 
     // Check if All Networks or Singular
     if (inputAllNetworks.checked) {
-      console.log("All Networks Per Connection Chosen");
       perConnectionCreateFormTable();
       // Funtion to create form and rows, add spinners on loading items
       // Async Functions to fetch field data
@@ -478,7 +473,6 @@
         )
           .then((response) => response.json())
           .then((data) => {
-            console.log(data);
 
             // Remove Options
             inputGroupPolicy.options.length = 0;
@@ -706,7 +700,6 @@
     document
       .getElementById("policy-all")
       .addEventListener("change", (event) => {
-        console.log(event.target.value);
 
         // Get all elements with a name attribute that contains "policy-"
         const policyElements = document.querySelectorAll('[name*="policy-"]');
@@ -755,7 +748,6 @@
     await fetch("/policy?value=Per connection&networkId=" + networkId)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const ssidAllSelectElement = document.getElementById(`ssid-all`);
         const ssidSelectElement = document.getElementById(`ssid-${networkId}`);
         const ssidPolicyElement = document.getElementById(
@@ -833,13 +825,11 @@
                   inputOrg: formDataObject["inputOrg"],
                   inputNetwork: netId,
                   inputPolicy: formDataObject["inputPolicy"],
-                  ssidKey: policy,
                   devices: JSON.stringify(csvJsonData),
                 };
-                console.log(networkObject);
+                networkObject[ssidKey] = policy;
                 // Convert FormData to JSON
                 const jsonData = JSON.stringify(networkObject);
-                console.log(document.getElementById(netId))
                 asyncFetch(jsonData, networkName, document.getElementById(netId));
               }
             }
@@ -856,7 +846,6 @@
     });
 
   async function asyncFetch(jsonData, networkName = 'Network', networkNameElement = false) {
-    console.log(networkNameElement)
     let response;
     overlay.style.display = "flex";
     try {
